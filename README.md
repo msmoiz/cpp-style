@@ -85,7 +85,7 @@ namespace coo { ... }
 
 ### Macros
 
-Macros should be all uppercase, with words separated by underscors (`_`).
+Macros should be all uppercase, with words separated by underscores (`_`).
 
 ```cpp
 #define UGLY_MACRO(...)
