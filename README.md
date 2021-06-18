@@ -80,10 +80,7 @@ void boo(...)
 Namespaces should be all lowercase, with words separated by underscores (`_`).
 
 ```cpp
-namespace coo
-{
-  ...
-}
+namespace coo { ... }
 ```
 
 ### Macros
