@@ -1,181 +1,581 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<title>Google C++ Style Guide</title>
-<link rel="stylesheet" href="include/styleguide.css">
-<script src="include/styleguide.js"></script>
-<link rel="shortcut icon" href="https://www.google.com/favicon.ico">
-</head>
-<body onload="initStyleGuide();">
-<div id="content">
-<h1>Google C++ Style Guide</h1>
-<div class="horizontal_toc" id="tocDiv"></div>
+# C++ Style
 
-<h2 id="Background" class="ignoreLink">Background</h2>
+This is a remix of the ubiquitous [Google C++ style guide](https://google.github.io/styleguide/cppguide.html). It has been tweaked to taste, keeping in mind the guiding principles of readability, expressiveness, and consistency. Some of the ensuing rules simply flow from preference, but rationales are provided periodically as well. Use it if you find it fits your needs.
 
-<p>C++ is one of the main development languages  used by
-many of Google's open-source projects. As every C++
-programmer knows, the language has many powerful features, but
-this power brings with it complexity, which in turn can make
-code more bug-prone and harder to read and maintain.</p>
+## C++ Version
 
-<p>The goal of this guide is to manage this complexity by
-describing in detail the dos and don'ts of writing C++ code
-. These rules exist to
-keep  the code base manageable while still allowing
-coders to use C++ language features productively.</p>
+New code should target C++17.
 
-<p><em>Style</em>, also known as readability, is what we call
-the conventions that govern our C++ code. The term Style is a
-bit of a misnomer, since these conventions cover far more than
-just source file formatting.</p>
+## Naming Conventions
 
-<p>
-Most open-source projects developed by
-Google conform to the requirements in this guide.
-</p>
+Read this carefully. Though buried towards the bottom of their original guide, Google notes that *the most important consistency rules are those that govern naming*. When it comes to naming, a paraphrase of the old adage is apt: "A rule for every name, and every name following its rule." The conventions below are designed to provide each group of constructs with a unique and easily discernable style, with no room for conflicts.
+
+### Files
+
+Files should contain only lowercase letters and underscores (`_`). This is consistent with the standard library. Source files should have the *.cpp* extension, and header files should have the *.h* extension.
+
+```shell
+foo_bar.h
+boo_baz.cpp
+```
+
+### Types
+
+Types are Pascal-cased, with the first letter of each word capitalized. No underscores. This applies to types of every kind, including classes and structs, enumerations, type template parameters, and aliases.
+
+```cpp
+class Foo;
+struct FooBar;
+enum class BazPolicy : uint8 { Val, Vax };
+template<typename Value>...;
+using Zoo = Foo;
+```
+
+### Variable Names
+
+Variable names are tricky. The following rules are designed to indicate source and avoid shadowing.
+
+#### Casing
+
+All variables are all lowercase, with words separated by underscores (`_`).
+
+#### Globals
+
+Global variables should be prefixed with `g_`. This does not apply to variables declared within named namespaces.
+
+```cpp
+int g_foo;
+```
+
+#### Members
+
+Member variables should be suffixed with `_`, irrespective of access level. This prevents collisions with functions and function parameters.
+
+```cpp
+class Foo
+{
+  int boo_;
+  char baz_;
+}
+```
+
+#### Parameters
+
+Parameter variables should have no suffix or prefix.
+
+```cpp
+void foo(int boo, char baz) { ... }
+```
+
+### Functions
+
+Functions should be all lowercase, with words separated by underscores (`_`).
+
+```cpp
+void boo(...)
+```
+
+### Namespaces
+
+Namespaces should be all lowercase, with words separated by underscores (`_`).
+
+```cpp
+namespace coo
+{
+  ...
+}
+```
+
+### Macros
+
+Macros should be all uppercase, with words separated by underscors (`_`).
+
+```cpp
+#define UGLY_MACRO(...)
+```
 
 
 
-<p>Note that this guide is not a C++ tutorial: we assume that
-the reader is familiar with the language. </p>
 
-<h3 id="Goals">Goals of the Style Guide</h3>
 
-<p>Why do we have this document?</p>
 
-<p>There are a few core goals that we believe this guide should
-serve. These are the fundamental <b>why</b>s that
-underlie all of the individual rules. By bringing these ideas to
-the fore, we hope to ground discussions and make it clearer to our
-broader community why the rules are in place and why particular
-decisions have been made. If you understand what goals each rule is
-serving, it should be clearer to everyone when a rule may be waived
-(some can be), and what sort of argument or alternative would be
-necessary to change a rule in the guide.</p>
 
-<p>The goals of the style guide as we currently see them are as follows:</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 <dl>
-<dt>Style rules should pull their weight</dt>
-<dd>The benefit of a style rule
-must be large enough to justify asking all of our engineers to
-remember it. The benefit is measured relative to the codebase we would
-get without the rule, so a rule against a very harmful practice may
-still have a small benefit if people are unlikely to do it
-anyway. This principle mostly explains the rules we don’t have, rather
-than the rules we do: for example, <code>goto</code> contravenes many
-of the following principles, but is already vanishingly rare, so the Style
-Guide doesn’t discuss it.</dd>
+  <dt><code>bigopen()</code></dt>
+  <dd>function name, follows form of <code>open()</code></dd>
 
-<dt>Optimize for the reader, not the writer</dt>
-<dd>Our codebase (and most individual components submitted to it) is
-expected to continue for quite some time. As a result, more time will
-be spent reading most of our code than writing it. We explicitly
-choose to optimize for the experience of our average software engineer
-reading, maintaining, and debugging code in our codebase rather than
-ease when writing said code.  "Leave a trace for the reader" is a
-particularly common sub-point of this principle: When something
-surprising or unusual is happening in a snippet of code (for example,
-transfer of pointer ownership), leaving textual hints for the reader
-at the point of use is valuable (<code>std::unique_ptr</code>
-demonstrates the ownership transfer unambiguously at the call
-site). </dd>
+  <dt><code>uint</code></dt>
+  <dd><code>typedef</code></dd>
 
-<dt>Be consistent with existing code</dt>
-<dd>Using one style consistently through our codebase lets us focus on
-other (more important) issues. Consistency also allows for automation:
-tools that format your code or adjust your <code>#include</code>s only
-work properly when your code is consistent with the expectations of
-the tooling. In many cases, rules that are attributed to "Be
-Consistent" boil down to "Just pick one and stop worrying about it";
-the potential value of allowing flexibility on these points is
-outweighed by the cost of having people argue over them. However,
-there are limits to consistency; it is a good tie breaker when there
-is no clear technical argument, nor a long-term direction. It applies
-more heavily locally (per file, or for a tightly-related set of
-interfaces). Consistency should not generally be used as a
-justification to do things in an old style without considering the
-benefits of the new style, or the tendency of the codebase to converge
-on newer styles over time.</dd>
+  <dt><code>bigpos</code></dt>
+  <dd><code>struct</code> or <code>class</code>, follows
+  form of <code>pos</code></dd>
 
-<dt>Be consistent with the broader C++ community when appropriate</dt>
-<dd>Consistency with the way other organizations use C++ has value for
-the same reasons as consistency within our code base. If a feature in
-the C++ standard solves a problem, or if some idiom is widely known
-and accepted, that's an argument for using it. However, sometimes
-standard features and idioms are flawed, or were just designed without
-our codebase's needs in mind. In those cases (as described below) it's
-appropriate to constrain or ban standard features.  In some cases we
-prefer a homegrown or third-party library over a library defined in
-the C++ Standard, either out of perceived superiority or insufficient
-value to transition the codebase to the standard interface.</dd>
+  <dt><code>sparse_hash_map</code></dt>
+  <dd>STL-like entity; follows STL naming conventions</dd>
 
-<dt>Avoid surprising or dangerous constructs</dt>
-<dd>C++ has features that are more surprising or dangerous than one
-might think at a glance. Some style guide restrictions are in place to
-prevent falling into these pitfalls. There is a high bar for style
-guide waivers on such restrictions, because waiving such rules often
-directly risks compromising program correctness.
-</dd>
-
-<dt>Avoid constructs that our average C++ programmer would find tricky
-or hard to maintain</dt>
-<dd>C++ has features that may not be generally appropriate because of
-the complexity they introduce to the code. In widely used
-code, it may be more acceptable to use
-trickier language constructs, because any benefits of more complex
-implementation are multiplied widely by usage, and the cost in understanding
-the complexity does not need to be paid again when working with new
-portions of the codebase. When in doubt, waivers to rules of this type
-can be sought by asking
-your project leads. This is specifically
-important for our codebase because code ownership and team membership
-changes over time: even if everyone that works with some piece of code
-currently understands it, such understanding is not guaranteed to hold a
-few years from now.</dd>
-
-<dt>Be mindful of our scale</dt>
-<dd>With a codebase of 100+ million lines and thousands of engineers,
-some mistakes and simplifications for one engineer can become costly
-for many. For instance it's particularly important to
-avoid polluting the global namespace: name collisions across a
-codebase of hundreds of millions of lines are difficult to work with
-and hard to avoid if everyone puts things into the global
-namespace.</dd>
-
-<dt>Concede to optimization when necessary</dt>
-<dd>Performance optimizations can sometimes be necessary and
-appropriate, even when they conflict with the other principles of this
-document.</dd>
+  <dt><code>LONGLONG_MAX</code></dt>
+  <dd>a constant, as in <code>INT_MAX</code></dd>
 </dl>
 
-<p>The intent of this document is to provide maximal guidance with
-reasonable restriction. As always, common sense and good taste should
-prevail. By this we specifically refer to the established conventions
-of the entire Google C++ community, not just your personal preferences
-or those of your team. Be skeptical about and reluctant to use
-clever or unusual constructs: the absence of a prohibition is not the
-same as a license to proceed.  Use your judgment, and if you are
-unsure, please don't hesitate to ask your project leads to get additional
-input.</p>
+<h2 id="Comments">Comments</h2>
 
+<p>Comments are absolutely vital to keeping our code readable. The following rules describe what you
+should comment and where. But remember: while comments are very important, the best code is
+self-documenting. Giving sensible names to types and variables is much better than using obscure
+names that you must then explain through comments.</p>
 
+<p>When writing your comments, write for your audience: the
+next
+contributor who will need to
+understand your code. Be generous — the next
+one may be you!</p>
 
-<h2 id="C++_Version">C++ Version</h2>
+<h3 id="Comment_Style">Comment Style</h3>
 
-<p>Currently, code should target C++17, i.e., should not use C++2x
-  features. The C++ version targeted by this guide will advance
-  (aggressively) over time.</p>
+<p>Use either the <code>//</code> or <code>/* */</code>
+syntax, as long as you are consistent.</p>
 
+<p>You can use either the <code>//</code> or the <code>/*
+*/</code> syntax; however, <code>//</code> is
+<em>much</em> more common. Be consistent with how you
+comment and what style you use where.</p>
 
+<h3 id="File_Comments">File Comments</h3>
 
-<p>Do not use
-  <a href="#Nonstandard_Extensions">non-standard extensions</a>.</p>
-
-  <div>Consider portability to other environments
-before using features from C++14 and C++17 in your project.
+<div>
+<p>Start each file with license boilerplate.</p>
 </div>
+
+<p>File comments describe the contents of a file. If a file declares,
+implements, or tests exactly one abstraction that is documented by a comment
+at the point of declaration, file comments are not required. All other files
+must have file comments.</p>
+
+<h4>Legal Notice and Author
+Line</h4>
+
+
+
+<div>
+<p>Every file should contain license
+boilerplate. Choose the appropriate boilerplate for the
+license used by the project (for example, Apache 2.0,
+BSD, LGPL, GPL).</p>
+</div>
+
+<p>If you make significant changes to a file with an
+author line, consider deleting the author line.
+New files should usually not contain copyright notice or
+author line.</p>
+
+<h4>File Contents</h4>
+
+<p>If a <code>.h</code> declares multiple abstractions, the file-level comment
+should broadly describe the contents of the file, and how the abstractions are
+related. A 1 or 2 sentence file-level comment may be sufficient. The detailed
+documentation about individual abstractions belongs with those abstractions,
+not at the file level.</p>
+
+<p>Do not duplicate comments in both the <code>.h</code> and the
+<code>.cc</code>. Duplicated comments diverge.</p>
+
+<h3 id="Class_Comments">Class Comments</h3>
+
+<p>Every non-obvious class or struct declaration should have an
+accompanying comment that describes what it is for and how it should
+be used.</p>
+
+<pre>// Iterates over the contents of a GargantuanTable.
+// Example:
+//    std::unique_ptr&lt;GargantuanTableIterator&gt; iter = table-&gt;NewIterator();
+//    for (iter-&gt;Seek("foo"); !iter-&gt;done(); iter-&gt;Next()) {
+//      process(iter-&gt;key(), iter-&gt;value());
+//    }
+class GargantuanTableIterator {
+  ...
+};
+</pre>
+
+<p>The class comment should provide the reader with enough information to know
+how and when to use the class, as well as any additional considerations
+necessary to correctly use the class. Document the synchronization assumptions
+the class makes, if any. If an instance of the class can be accessed by
+multiple threads, take extra care to document the rules and invariants
+surrounding multithreaded use.</p>
+
+<p>The class comment is often a good place for a small example code snippet
+demonstrating a simple and focused usage of the class.</p>
+
+<p>When sufficiently separated (e.g., <code>.h</code> and <code>.cc</code>
+files), comments describing the use of the class should go together with its
+interface definition; comments about the class operation and implementation
+should accompany the implementation of the class's methods.</p>
+
+<h3 id="Function_Comments">Function Comments</h3>
+
+<p>Declaration comments describe use of the function (when it is
+non-obvious); comments at the definition of a function describe
+operation.</p>
+
+<h4>Function Declarations</h4>
+
+<p>Almost every function declaration should have comments immediately
+preceding it that describe what the function does and how to use
+it. These comments may be omitted only if the function is simple and
+obvious (e.g., simple accessors for obvious properties of the class).
+Function comments should be written with an implied subject of
+<i>This function</i> and should start with the verb phrase; for example,
+"Opens the file", rather than "Open the file". In general, these comments do not
+describe how the function performs its task. Instead, that should be
+left to comments in the function definition.</p>
+
+<p>Types of things to mention in comments at the function
+declaration:</p>
+
+<ul>
+  <li>What the inputs and outputs are. If function argument names
+      are provided in `backticks`, then code-indexing
+      tools may be able to present the documentation better.</li>
+
+  <li>For class member functions: whether the object
+  remembers reference arguments beyond the duration of
+  the method call, and whether it will free them or
+  not.</li>
+
+  <li>If the function allocates memory that the caller
+  must free.</li>
+
+  <li>Whether any of the arguments can be a null
+  pointer.</li>
+
+  <li>If there are any performance implications of how a
+  function is used.</li>
+
+  <li>If the function is re-entrant. What are its
+  synchronization assumptions?</li>
+ </ul>
+
+<p>Here is an example:</p>
+
+<pre>// Returns an iterator for this table, positioned at the first entry
+// lexically greater than or equal to `start_word`. If there is no
+// such entry, returns a null pointer. The client must not use the
+// iterator after the underlying GargantuanTable has been destroyed.
+//
+// This method is equivalent to:
+//    std::unique_ptr&lt;Iterator&gt; iter = table-&gt;NewIterator();
+//    iter-&gt;Seek(start_word);
+//    return iter;
+std::unique_ptr&lt;Iterator&gt; GetIterator(absl::string_view start_word) const;
+</pre>
+
+<p>However, do not be unnecessarily verbose or state the
+completely obvious.</p>
+
+<p>When documenting function overrides, focus on the
+specifics of the override itself, rather than repeating
+the comment from the overridden function.  In many of these
+cases, the override needs no additional documentation and
+thus no comment is required.</p>
+
+<p>When commenting constructors and destructors, remember
+that the person reading your code knows what constructors
+and destructors are for, so comments that just say
+something like "destroys this object" are not useful.
+Document what constructors do with their arguments (for
+example, if they take ownership of pointers), and what
+cleanup the destructor does. If this is trivial, just
+skip the comment. It is quite common for destructors not
+to have a header comment.</p>
+
+<h4>Function Definitions</h4>
+
+<p>If there is anything tricky about how a function does
+its job, the function definition should have an
+explanatory comment. For example, in the definition
+comment you might describe any coding tricks you use,
+give an overview of the steps you go through, or explain
+why you chose to implement the function in the way you
+did rather than using a viable alternative. For instance,
+you might mention why it must acquire a lock for the
+first half of the function but why it is not needed for
+the second half.</p>
+
+<p>Note you should <em>not</em> just repeat the comments
+given with the function declaration, in the
+<code>.h</code> file or wherever. It's okay to
+recapitulate briefly what the function does, but the
+focus of the comments should be on how it does it.</p>
+
+<h3 id="Variable_Comments">Variable Comments</h3>
+
+<p>In general the actual name of the variable should be
+descriptive enough to give a good idea of what the variable
+is used for. In certain cases, more comments are required.</p>
+
+<h4>Class Data Members</h4>
+
+<p>The purpose of each class data member (also called an instance
+variable or member variable) must be clear. If there are any
+invariants (special values, relationships between members, lifetime
+requirements) not clearly expressed by the type and name, they must be
+commented. However, if the type and name suffice (<code>int
+num_events_;</code>), no comment is needed.</p>
+
+<p>In particular, add comments to describe the existence and meaning
+of sentinel values, such as nullptr or -1, when they are not
+obvious. For example:</p>
+
+<pre>private:
+ // Used to bounds-check table accesses. -1 means
+ // that we don't yet know how many entries the table has.
+ int num_total_entries_;
+</pre>
+
+<h4>Global Variables</h4>
+
+<p>All global variables should have a comment describing what they
+are, what they are used for, and (if unclear) why it needs to be
+global. For example:</p>
+
+<pre>// The total number of test cases that we run through in this regression test.
+const int kNumTestCases = 6;
+</pre>
+
+<h3 id="Implementation_Comments">Implementation Comments</h3>
+
+<p>In your implementation you should have comments in tricky,
+non-obvious, interesting, or important parts of your code.</p>
+
+<h4>Explanatory Comments</h4>
+
+<p>Tricky or complicated code blocks should have comments
+before them. Example:</p>
+
+<pre>// Divide result by two, taking into account that x
+// contains the carry from the add.
+for (int i = 0; i &lt; result-&gt;size(); ++i) {
+  x = (x &lt;&lt; 8) + (*result)[i];
+  (*result)[i] = x &gt;&gt; 1;
+  x &amp;= 1;
+}
+</pre>
+
+<h4>Line-end Comments</h4>
+
+<p>Also, lines that are non-obvious should get a comment
+at the end of the line. These end-of-line comments should
+be separated from the code by 2 spaces. Example:</p>
+
+<pre>// If we have enough memory, mmap the data portion too.
+mmap_budget = max&lt;int64_t&gt;(0, mmap_budget - index_-&gt;length());
+if (mmap_budget &gt;= data_size_ &amp;&amp; !MmapData(mmap_chunk_bytes, mlock))
+  return;  // Error already logged.
+</pre>
+
+<p>Note that there are both comments that describe what
+the code is doing, and comments that mention that an
+error has already been logged when the function
+returns.</p>
+
+<h4 class="stylepoint_subsection" id="Function_Argument_Comments">Function Argument Comments</h4>
+
+<p>When the meaning of a function argument is nonobvious, consider
+one of the following remedies:</p>
+
+<ul>
+  <li>If the argument is a literal constant, and the same constant is
+  used in multiple function calls in a way that tacitly assumes they're
+  the same, you should use a named constant to make that constraint
+  explicit, and to guarantee that it holds.</li>
+
+  <li>Consider changing the function signature to replace a <code>bool</code>
+  argument with an <code>enum</code> argument. This will make the argument
+  values self-describing.</li>
+
+  <li>For functions that have several configuration options, consider
+  defining a single class or struct to hold all the options
+  ,
+  and pass an instance of that.
+  This approach has several advantages. Options are referenced by name
+  at the call site, which clarifies their meaning. It also reduces
+  function argument count, which makes function calls easier to read and
+  write. As an added benefit, you don't have to change call sites when
+  you add another option.
+  </li>
+
+  <li>Replace large or complex nested expressions with named variables.</li>
+
+  <li>As a last resort, use comments to clarify argument meanings at the
+  call site. </li>
+</ul>
+
+Consider the following example:
+
+<pre class="badcode">// What are these arguments?
+const DecimalNumber product = CalculateProduct(values, 7, false, nullptr);
+</pre>
+
+<p>versus:</p>
+
+<pre>ProductOptions options;
+options.set_precision_decimals(7);
+options.set_use_cache(ProductOptions::kDontUseCache);
+const DecimalNumber product =
+    CalculateProduct(values, options, /*completion_callback=*/nullptr);
+</pre>
+
+<h4 id="Implementation_Comment_Donts">Don'ts</h4>
+
+<p>Do not state the obvious. In particular, don't literally describe what
+code does, unless the behavior is nonobvious to a reader who understands
+C++ well. Instead, provide higher level comments that describe <i>why</i>
+the code does what it does, or make the code self describing.</p>
+
+Compare this:
+
+<pre class="badcode">// Find the element in the vector.  &lt;-- Bad: obvious!
+if (std::find(v.begin(), v.end(), element) != v.end()) {
+  Process(element);
+}
+</pre>
+
+To this:
+
+<pre>// Process "element" unless it was already processed.
+if (std::find(v.begin(), v.end(), element) != v.end()) {
+  Process(element);
+}
+</pre>
+
+Self-describing code doesn't need a comment. The comment from
+the example above would be obvious:
+
+<pre>if (!IsAlreadyProcessed(element)) {
+  Process(element);
+}
+</pre>
+
+<h3 id="Punctuation,_Spelling_and_Grammar">Punctuation, Spelling, and Grammar</h3>
+
+<p>Pay attention to punctuation, spelling, and grammar; it is
+easier to read well-written comments than badly written
+ones.</p>
+
+<p>Comments should be as readable as narrative text, with
+proper capitalization and punctuation. In many cases,
+complete sentences are more readable than sentence
+fragments. Shorter comments, such as comments at the end
+of a line of code, can sometimes be less formal, but you
+should be consistent with your style.</p>
+
+<p>Although it can be frustrating to have a code reviewer
+point out that you are using a comma when you should be
+using a semicolon, it is very important that source code
+maintain a high level of clarity and readability. Proper
+punctuation, spelling, and grammar help with that
+goal.</p>
+
+<h3 id="TODO_Comments">TODO Comments</h3>
+
+<p>Use <code>TODO</code> comments for code that is temporary,
+a short-term solution, or good-enough but not perfect.</p>
+
+<p><code>TODO</code>s should include the string
+<code>TODO</code> in all caps, followed by the
+
+name, e-mail address, bug ID, or other
+identifier
+of the person or issue with the best context
+about the problem referenced by the <code>TODO</code>. The
+main purpose is to have a consistent <code>TODO</code> that
+can be searched to find out how to get more details upon
+request. A <code>TODO</code> is not a commitment that the
+person referenced will fix the problem. Thus when you create
+a <code>TODO</code> with a name, it is almost always your
+name that is given.</p>
+
+
+
+<div>
+<pre>// TODO(kl@gmail.com): Use a "*" here for concatenation operator.
+// TODO(Zeke) change this to use relations.
+// TODO(bug 12345): remove the "Last visitors" feature.
+</pre>
+</div>
+
+<p>If your <code>TODO</code> is of the form "At a future
+date do something" make sure that you either include a
+very specific date ("Fix by November 2005") or a very
+specific event ("Remove this code when all clients can
+handle XML responses.").</p>
+
+<h2 id="Formatting">Formatting</h2>
+
+<p>Coding style and formatting are pretty arbitrary, but a
+
+project is much easier to follow
+if everyone uses the same style. Individuals may not agree with every
+aspect of the formatting rules, and some of the rules may take
+some getting used to, but it is important that all
+
+project contributors follow the
+style rules so that
+they can all read and understand
+everyone's code easily.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+## Header Files
 
 <h2 id="Header_Files">Header Files</h2>
 
@@ -4126,671 +4526,6 @@ category: type template parameters should follow the rules for
 <a href="#Type_Names">type names</a>, and non-type template
 parameters should follow the rules for <a href="#Variable_Names">
 variable names</a>.
-
-</p><h3 id="File_Names">File Names</h3>
-
-<p>Filenames should be all lowercase and can include
-underscores (<code>_</code>) or dashes (<code>-</code>).
-Follow the convention that your
-
-project uses. If there is no consistent
-local pattern to follow, prefer "_".</p>
-
-<p>Examples of acceptable file names:</p>
-
-<ul>
-  <li><code>my_useful_class.cc</code></li>
-  <li><code>my-useful-class.cc</code></li>
-  <li><code>myusefulclass.cc</code></li>
-  <li><code>myusefulclass_test.cc // _unittest and _regtest are deprecated.</code></li>
-</ul>
-
-<p>C++ files should end in <code>.cc</code> and header files should end in
-<code>.h</code>. Files that rely on being textually included at specific points
-should end in <code>.inc</code> (see also the section on
-<a href="#Self_contained_Headers">self-contained headers</a>).</p>
-
-<p>Do not use filenames that already exist in
-<code>/usr/include</code>, such as <code>db.h</code>.</p>
-
-<p>In general, make your filenames very specific. For
-example, use <code>http_server_logs.h</code> rather than
-<code>logs.h</code>. A very common case is to have a pair
-of files called, e.g., <code>foo_bar.h</code> and
-<code>foo_bar.cc</code>, defining a class called
-<code>FooBar</code>.</p>
-
-<h3 id="Type_Names">Type Names</h3>
-
-<p>Type names start with a capital letter and have a capital
-letter for each new word, with no underscores:
-<code>MyExcitingClass</code>, <code>MyExcitingEnum</code>.</p>
-
-<p>The names of all types — classes, structs, type aliases,
-enums, and type template parameters — have the same naming convention.
-Type names should start with a capital letter and have a capital letter
-for each new word. No underscores. For example:</p>
-
-<pre>// classes and structs
-class UrlTable { ...
-class UrlTableTester { ...
-struct UrlTableProperties { ...
-
-// typedefs
-typedef hash_map&lt;UrlTableProperties *, std::string&gt; PropertiesMap;
-
-// using aliases
-using PropertiesMap = hash_map&lt;UrlTableProperties *, std::string&gt;;
-
-// enums
-enum class UrlTableError { ...
-</pre>
-
-<h3 id="Variable_Names">Variable Names</h3>
-
-<p>The names of variables (including function parameters) and data members are
-all lowercase, with underscores between words. Data members of classes (but not
-structs) additionally have trailing underscores. For instance:
-<code>a_local_variable</code>, <code>a_struct_data_member</code>,
-<code>a_class_data_member_</code>.</p>
-
-<h4>Common Variable names</h4>
-
-<p>For example:</p>
-
-<pre>std::string table_name;  // OK - lowercase with underscore.
-</pre>
-
-<pre class="badcode">std::string tableName;   // Bad - mixed case.
-</pre>
-
-<h4>Class Data Members</h4>
-
-<p>Data members of classes, both static and non-static, are
-named like ordinary nonmember variables, but with a
-trailing underscore.</p>
-
-<pre>class TableInfo {
-  ...
- private:
-  std::string table_name_;  // OK - underscore at end.
-  static Pool&lt;TableInfo&gt;* pool_;  // OK.
-};
-</pre>
-
-<h4>Struct Data Members</h4>
-
-<p>Data members of structs, both static and non-static,
-are named like ordinary nonmember variables. They do not have
-the trailing underscores that data members in classes have.</p>
-
-<pre>struct UrlTableProperties {
-  std::string name;
-  int num_entries;
-  static Pool&lt;UrlTableProperties&gt;* pool;
-};
-</pre>
-
-
-<p>See <a href="#Structs_vs._Classes">Structs vs.
-Classes</a> for a discussion of when to use a struct
-versus a class.</p>
-
-<h3 id="Constant_Names">Constant Names</h3>
-
-<p>Variables declared constexpr or const, and whose value is fixed for
-the duration of the program, are named with a leading "k" followed
-by mixed case. Underscores can be used as separators in the rare cases
-where capitalization cannot be used for separation. For example:</p>
-
-<pre>const int kDaysInAWeek = 7;
-const int kAndroid8_0_0 = 24;  // Android 8.0.0
-</pre>
-
-<p>All such variables with static storage duration (i.e., statics and globals,
-see <a href="http://en.cppreference.com/w/cpp/language/storage_duration#Storage_duration">
-Storage Duration</a> for details) should be named this way.  This
-convention is optional for variables of other storage classes, e.g., automatic
-variables, otherwise the usual variable naming rules apply.</p>
-
-<h3 id="Function_Names">Function Names</h3>
-
-<p>Regular functions have mixed case; accessors and mutators may be named
-like variables.</p>
-
-<p>Ordinarily, functions should start with a capital letter and have a
-capital letter for each new word.</p>
-
-<pre>AddTableEntry()
-DeleteUrl()
-OpenFileOrDie()
-</pre>
-
-<p>(The same naming rule applies to class- and namespace-scope
-constants that are exposed as part of an API and that are intended to look
-like functions, because the fact that they're objects rather than functions
-is an unimportant implementation detail.)</p>
-
-<p>Accessors and mutators (get and set functions) may be named like
-variables. These often correspond to actual member variables, but this is
-not required. For example, <code>int count()</code> and <code>void
-set_count(int count)</code>.</p>
-
-<h3 id="Namespace_Names">Namespace Names</h3>
-
-Namespace names are all lower-case, with words separated by underscores.
-Top-level namespace names are based on the project name
-. Avoid collisions
-between nested namespaces and well-known top-level namespaces.
-
-<p>The name of a top-level namespace should usually be the
-name of the project or team whose code is contained in that
-namespace. The code in that namespace should usually be in
-a directory whose basename matches the namespace name (or in
-subdirectories thereof).</p>
-
-
-
-<p>Keep in mind that the <a href="#General_Naming_Rules">rule
-against abbreviated names</a> applies to namespaces just as much
-as variable names. Code inside the namespace seldom needs to
-mention the namespace name, so there's usually no particular need
-for abbreviation anyway.</p>
-
-<p>Avoid nested namespaces that match well-known top-level
-namespaces. Collisions between namespace names can lead to surprising
-build breaks because of name lookup rules. In particular, do not
-create any nested <code>std</code> namespaces. Prefer unique project
-identifiers
-(<code>websearch::index</code>, <code>websearch::index_util</code>)
-over collision-prone names like <code>websearch::util</code>. Also avoid overly deep nesting
-  namespaces (<a href="https://abseil.io/tips/130">TotW #130</a>).</p>
-
-<p>For <code>internal</code> namespaces, be wary of other code being
-added to the same <code>internal</code> namespace causing a collision
-(internal helpers within a team tend to be related and may lead to
-collisions). In such a situation, using the filename to make a unique
-internal name is helpful
-(<code>websearch::index::frobber_internal</code> for use
-in <code>frobber.h</code>).</p>
-
-<h3 id="Enumerator_Names">Enumerator Names</h3>
-
-<p>Enumerators (for both scoped and unscoped enums) should be named like
-<a href="#Constant_Names">constants</a>, not like
-<a href="#Macro_Names">macros</a>. That is, use <code>kEnumName</code> not
-<code>ENUM_NAME</code>.</p>
-
-
-
-<pre>enum class UrlTableError {
-  kOk = 0,
-  kOutOfMemory,
-  kMalformedInput,
-};
-</pre>
-<pre class="badcode">enum class AlternateUrlTableError {
-  OK = 0,
-  OUT_OF_MEMORY = 1,
-  MALFORMED_INPUT = 2,
-};
-</pre>
-
-<p>Until January 2009, the style was to name enum values
-like <a href="#Macro_Names">macros</a>. This caused
-problems with name collisions between enum values and
-macros. Hence, the change to prefer constant-style naming
-was put in place. New code should use constant-style
-naming.</p>
-
-
-
-<h3 id="Macro_Names">Macro Names</h3>
-
-<p>You're not really going to <a href="#Preprocessor_Macros">
-define a macro</a>, are you? If you do, they're like this:
-<code>MY_MACRO_THAT_SCARES_SMALL_CHILDREN_AND_ADULTS_ALIKE</code>.
-</p>
-
-<p>Please see the <a href="#Preprocessor_Macros">description
-of macros</a>; in general macros should <em>not</em> be used.
-However, if they are absolutely needed, then they should be
-named with all capitals and underscores.</p>
-
-<pre>#define ROUND(x) ...
-#define PI_ROUNDED 3.0
-</pre>
-
-<h3 id="Exceptions_to_Naming_Rules">Exceptions to Naming Rules</h3>
-
-<p>If you are naming something that is analogous to an
-existing C or C++ entity then you can follow the existing
-naming convention scheme.</p>
-
-<dl>
-  <dt><code>bigopen()</code></dt>
-  <dd>function name, follows form of <code>open()</code></dd>
-
-  <dt><code>uint</code></dt>
-  <dd><code>typedef</code></dd>
-
-  <dt><code>bigpos</code></dt>
-  <dd><code>struct</code> or <code>class</code>, follows
-  form of <code>pos</code></dd>
-
-  <dt><code>sparse_hash_map</code></dt>
-  <dd>STL-like entity; follows STL naming conventions</dd>
-
-  <dt><code>LONGLONG_MAX</code></dt>
-  <dd>a constant, as in <code>INT_MAX</code></dd>
-</dl>
-
-<h2 id="Comments">Comments</h2>
-
-<p>Comments are absolutely vital to keeping our code readable. The following rules describe what you
-should comment and where. But remember: while comments are very important, the best code is
-self-documenting. Giving sensible names to types and variables is much better than using obscure
-names that you must then explain through comments.</p>
-
-<p>When writing your comments, write for your audience: the
-next
-contributor who will need to
-understand your code. Be generous — the next
-one may be you!</p>
-
-<h3 id="Comment_Style">Comment Style</h3>
-
-<p>Use either the <code>//</code> or <code>/* */</code>
-syntax, as long as you are consistent.</p>
-
-<p>You can use either the <code>//</code> or the <code>/*
-*/</code> syntax; however, <code>//</code> is
-<em>much</em> more common. Be consistent with how you
-comment and what style you use where.</p>
-
-<h3 id="File_Comments">File Comments</h3>
-
-<div>
-<p>Start each file with license boilerplate.</p>
-</div>
-
-<p>File comments describe the contents of a file. If a file declares,
-implements, or tests exactly one abstraction that is documented by a comment
-at the point of declaration, file comments are not required. All other files
-must have file comments.</p>
-
-<h4>Legal Notice and Author
-Line</h4>
-
-
-
-<div>
-<p>Every file should contain license
-boilerplate. Choose the appropriate boilerplate for the
-license used by the project (for example, Apache 2.0,
-BSD, LGPL, GPL).</p>
-</div>
-
-<p>If you make significant changes to a file with an
-author line, consider deleting the author line.
-New files should usually not contain copyright notice or
-author line.</p>
-
-<h4>File Contents</h4>
-
-<p>If a <code>.h</code> declares multiple abstractions, the file-level comment
-should broadly describe the contents of the file, and how the abstractions are
-related. A 1 or 2 sentence file-level comment may be sufficient. The detailed
-documentation about individual abstractions belongs with those abstractions,
-not at the file level.</p>
-
-<p>Do not duplicate comments in both the <code>.h</code> and the
-<code>.cc</code>. Duplicated comments diverge.</p>
-
-<h3 id="Class_Comments">Class Comments</h3>
-
-<p>Every non-obvious class or struct declaration should have an
-accompanying comment that describes what it is for and how it should
-be used.</p>
-
-<pre>// Iterates over the contents of a GargantuanTable.
-// Example:
-//    std::unique_ptr&lt;GargantuanTableIterator&gt; iter = table-&gt;NewIterator();
-//    for (iter-&gt;Seek("foo"); !iter-&gt;done(); iter-&gt;Next()) {
-//      process(iter-&gt;key(), iter-&gt;value());
-//    }
-class GargantuanTableIterator {
-  ...
-};
-</pre>
-
-<p>The class comment should provide the reader with enough information to know
-how and when to use the class, as well as any additional considerations
-necessary to correctly use the class. Document the synchronization assumptions
-the class makes, if any. If an instance of the class can be accessed by
-multiple threads, take extra care to document the rules and invariants
-surrounding multithreaded use.</p>
-
-<p>The class comment is often a good place for a small example code snippet
-demonstrating a simple and focused usage of the class.</p>
-
-<p>When sufficiently separated (e.g., <code>.h</code> and <code>.cc</code>
-files), comments describing the use of the class should go together with its
-interface definition; comments about the class operation and implementation
-should accompany the implementation of the class's methods.</p>
-
-<h3 id="Function_Comments">Function Comments</h3>
-
-<p>Declaration comments describe use of the function (when it is
-non-obvious); comments at the definition of a function describe
-operation.</p>
-
-<h4>Function Declarations</h4>
-
-<p>Almost every function declaration should have comments immediately
-preceding it that describe what the function does and how to use
-it. These comments may be omitted only if the function is simple and
-obvious (e.g., simple accessors for obvious properties of the class).
-Function comments should be written with an implied subject of
-<i>This function</i> and should start with the verb phrase; for example,
-"Opens the file", rather than "Open the file". In general, these comments do not
-describe how the function performs its task. Instead, that should be
-left to comments in the function definition.</p>
-
-<p>Types of things to mention in comments at the function
-declaration:</p>
-
-<ul>
-  <li>What the inputs and outputs are. If function argument names
-      are provided in `backticks`, then code-indexing
-      tools may be able to present the documentation better.</li>
-
-  <li>For class member functions: whether the object
-  remembers reference arguments beyond the duration of
-  the method call, and whether it will free them or
-  not.</li>
-
-  <li>If the function allocates memory that the caller
-  must free.</li>
-
-  <li>Whether any of the arguments can be a null
-  pointer.</li>
-
-  <li>If there are any performance implications of how a
-  function is used.</li>
-
-  <li>If the function is re-entrant. What are its
-  synchronization assumptions?</li>
- </ul>
-
-<p>Here is an example:</p>
-
-<pre>// Returns an iterator for this table, positioned at the first entry
-// lexically greater than or equal to `start_word`. If there is no
-// such entry, returns a null pointer. The client must not use the
-// iterator after the underlying GargantuanTable has been destroyed.
-//
-// This method is equivalent to:
-//    std::unique_ptr&lt;Iterator&gt; iter = table-&gt;NewIterator();
-//    iter-&gt;Seek(start_word);
-//    return iter;
-std::unique_ptr&lt;Iterator&gt; GetIterator(absl::string_view start_word) const;
-</pre>
-
-<p>However, do not be unnecessarily verbose or state the
-completely obvious.</p>
-
-<p>When documenting function overrides, focus on the
-specifics of the override itself, rather than repeating
-the comment from the overridden function.  In many of these
-cases, the override needs no additional documentation and
-thus no comment is required.</p>
-
-<p>When commenting constructors and destructors, remember
-that the person reading your code knows what constructors
-and destructors are for, so comments that just say
-something like "destroys this object" are not useful.
-Document what constructors do with their arguments (for
-example, if they take ownership of pointers), and what
-cleanup the destructor does. If this is trivial, just
-skip the comment. It is quite common for destructors not
-to have a header comment.</p>
-
-<h4>Function Definitions</h4>
-
-<p>If there is anything tricky about how a function does
-its job, the function definition should have an
-explanatory comment. For example, in the definition
-comment you might describe any coding tricks you use,
-give an overview of the steps you go through, or explain
-why you chose to implement the function in the way you
-did rather than using a viable alternative. For instance,
-you might mention why it must acquire a lock for the
-first half of the function but why it is not needed for
-the second half.</p>
-
-<p>Note you should <em>not</em> just repeat the comments
-given with the function declaration, in the
-<code>.h</code> file or wherever. It's okay to
-recapitulate briefly what the function does, but the
-focus of the comments should be on how it does it.</p>
-
-<h3 id="Variable_Comments">Variable Comments</h3>
-
-<p>In general the actual name of the variable should be
-descriptive enough to give a good idea of what the variable
-is used for. In certain cases, more comments are required.</p>
-
-<h4>Class Data Members</h4>
-
-<p>The purpose of each class data member (also called an instance
-variable or member variable) must be clear. If there are any
-invariants (special values, relationships between members, lifetime
-requirements) not clearly expressed by the type and name, they must be
-commented. However, if the type and name suffice (<code>int
-num_events_;</code>), no comment is needed.</p>
-
-<p>In particular, add comments to describe the existence and meaning
-of sentinel values, such as nullptr or -1, when they are not
-obvious. For example:</p>
-
-<pre>private:
- // Used to bounds-check table accesses. -1 means
- // that we don't yet know how many entries the table has.
- int num_total_entries_;
-</pre>
-
-<h4>Global Variables</h4>
-
-<p>All global variables should have a comment describing what they
-are, what they are used for, and (if unclear) why it needs to be
-global. For example:</p>
-
-<pre>// The total number of test cases that we run through in this regression test.
-const int kNumTestCases = 6;
-</pre>
-
-<h3 id="Implementation_Comments">Implementation Comments</h3>
-
-<p>In your implementation you should have comments in tricky,
-non-obvious, interesting, or important parts of your code.</p>
-
-<h4>Explanatory Comments</h4>
-
-<p>Tricky or complicated code blocks should have comments
-before them. Example:</p>
-
-<pre>// Divide result by two, taking into account that x
-// contains the carry from the add.
-for (int i = 0; i &lt; result-&gt;size(); ++i) {
-  x = (x &lt;&lt; 8) + (*result)[i];
-  (*result)[i] = x &gt;&gt; 1;
-  x &amp;= 1;
-}
-</pre>
-
-<h4>Line-end Comments</h4>
-
-<p>Also, lines that are non-obvious should get a comment
-at the end of the line. These end-of-line comments should
-be separated from the code by 2 spaces. Example:</p>
-
-<pre>// If we have enough memory, mmap the data portion too.
-mmap_budget = max&lt;int64_t&gt;(0, mmap_budget - index_-&gt;length());
-if (mmap_budget &gt;= data_size_ &amp;&amp; !MmapData(mmap_chunk_bytes, mlock))
-  return;  // Error already logged.
-</pre>
-
-<p>Note that there are both comments that describe what
-the code is doing, and comments that mention that an
-error has already been logged when the function
-returns.</p>
-
-<h4 class="stylepoint_subsection" id="Function_Argument_Comments">Function Argument Comments</h4>
-
-<p>When the meaning of a function argument is nonobvious, consider
-one of the following remedies:</p>
-
-<ul>
-  <li>If the argument is a literal constant, and the same constant is
-  used in multiple function calls in a way that tacitly assumes they're
-  the same, you should use a named constant to make that constraint
-  explicit, and to guarantee that it holds.</li>
-
-  <li>Consider changing the function signature to replace a <code>bool</code>
-  argument with an <code>enum</code> argument. This will make the argument
-  values self-describing.</li>
-
-  <li>For functions that have several configuration options, consider
-  defining a single class or struct to hold all the options
-  ,
-  and pass an instance of that.
-  This approach has several advantages. Options are referenced by name
-  at the call site, which clarifies their meaning. It also reduces
-  function argument count, which makes function calls easier to read and
-  write. As an added benefit, you don't have to change call sites when
-  you add another option.
-  </li>
-
-  <li>Replace large or complex nested expressions with named variables.</li>
-
-  <li>As a last resort, use comments to clarify argument meanings at the
-  call site. </li>
-</ul>
-
-Consider the following example:
-
-<pre class="badcode">// What are these arguments?
-const DecimalNumber product = CalculateProduct(values, 7, false, nullptr);
-</pre>
-
-<p>versus:</p>
-
-<pre>ProductOptions options;
-options.set_precision_decimals(7);
-options.set_use_cache(ProductOptions::kDontUseCache);
-const DecimalNumber product =
-    CalculateProduct(values, options, /*completion_callback=*/nullptr);
-</pre>
-
-<h4 id="Implementation_Comment_Donts">Don'ts</h4>
-
-<p>Do not state the obvious. In particular, don't literally describe what
-code does, unless the behavior is nonobvious to a reader who understands
-C++ well. Instead, provide higher level comments that describe <i>why</i>
-the code does what it does, or make the code self describing.</p>
-
-Compare this:
-
-<pre class="badcode">// Find the element in the vector.  &lt;-- Bad: obvious!
-if (std::find(v.begin(), v.end(), element) != v.end()) {
-  Process(element);
-}
-</pre>
-
-To this:
-
-<pre>// Process "element" unless it was already processed.
-if (std::find(v.begin(), v.end(), element) != v.end()) {
-  Process(element);
-}
-</pre>
-
-Self-describing code doesn't need a comment. The comment from
-the example above would be obvious:
-
-<pre>if (!IsAlreadyProcessed(element)) {
-  Process(element);
-}
-</pre>
-
-<h3 id="Punctuation,_Spelling_and_Grammar">Punctuation, Spelling, and Grammar</h3>
-
-<p>Pay attention to punctuation, spelling, and grammar; it is
-easier to read well-written comments than badly written
-ones.</p>
-
-<p>Comments should be as readable as narrative text, with
-proper capitalization and punctuation. In many cases,
-complete sentences are more readable than sentence
-fragments. Shorter comments, such as comments at the end
-of a line of code, can sometimes be less formal, but you
-should be consistent with your style.</p>
-
-<p>Although it can be frustrating to have a code reviewer
-point out that you are using a comma when you should be
-using a semicolon, it is very important that source code
-maintain a high level of clarity and readability. Proper
-punctuation, spelling, and grammar help with that
-goal.</p>
-
-<h3 id="TODO_Comments">TODO Comments</h3>
-
-<p>Use <code>TODO</code> comments for code that is temporary,
-a short-term solution, or good-enough but not perfect.</p>
-
-<p><code>TODO</code>s should include the string
-<code>TODO</code> in all caps, followed by the
-
-name, e-mail address, bug ID, or other
-identifier
-of the person or issue with the best context
-about the problem referenced by the <code>TODO</code>. The
-main purpose is to have a consistent <code>TODO</code> that
-can be searched to find out how to get more details upon
-request. A <code>TODO</code> is not a commitment that the
-person referenced will fix the problem. Thus when you create
-a <code>TODO</code> with a name, it is almost always your
-name that is given.</p>
-
-
-
-<div>
-<pre>// TODO(kl@gmail.com): Use a "*" here for concatenation operator.
-// TODO(Zeke) change this to use relations.
-// TODO(bug 12345): remove the "Last visitors" feature.
-</pre>
-</div>
-
-<p>If your <code>TODO</code> is of the form "At a future
-date do something" make sure that you either include a
-very specific date ("Fix by November 2005") or a very
-specific event ("Remove this code when all clients can
-handle XML responses.").</p>
-
-<h2 id="Formatting">Formatting</h2>
-
-<p>Coding style and formatting are pretty arbitrary, but a
-
-project is much easier to follow
-if everyone uses the same style. Individuals may not agree with every
-aspect of the formatting rules, and some of the rules may take
-some getting used to, but it is important that all
-
-project contributors follow the
-style rules so that
-they can all read and understand
-everyone's code easily.</p>
 
 
 
