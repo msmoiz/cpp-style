@@ -118,23 +118,6 @@ Macros should be all uppercase, with words separated by underscors (`_`).
 
 
 
-<dl>
-  <dt><code>bigopen()</code></dt>
-  <dd>function name, follows form of <code>open()</code></dd>
-
-  <dt><code>uint</code></dt>
-  <dd><code>typedef</code></dd>
-
-  <dt><code>bigpos</code></dt>
-  <dd><code>struct</code> or <code>class</code>, follows
-  form of <code>pos</code></dd>
-
-  <dt><code>sparse_hash_map</code></dt>
-  <dd>STL-like entity; follows STL naming conventions</dd>
-
-  <dt><code>LONGLONG_MAX</code></dt>
-  <dd>a constant, as in <code>INT_MAX</code></dd>
-</dl>
 
 <h2 id="Comments">Comments</h2>
 
