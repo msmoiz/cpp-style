@@ -203,6 +203,20 @@ A class's public API must make clear whether the class is copyable, move-only, o
 
 A type should not be copyable/movable if the meaning of copying/moving is unclear to a casual user, or if it incurs unexpected costs. Move operations for copyable types are strictly a performance optimization and are a potential source of bugs and complexity, so avoid defining them unless they are significantly more efficient than the corresponding copy operations. If your type provides copy operations, it is recommended that you design your class so that the default implementation of those operations is correct. Remember to review the correctness of any defaulted operations as you would any other code.
 
+### Declaration Order
+
+Every class should have only three sections, one for each access level - i.e. `public`, `protected`, `protected`, in that order. Empty sections should be omitted. Within each section, elements of a class should be declared in the following order:
+
+1. Nested types
+2. Type aliases
+3. Constants
+4. Factory functions
+5. Special functions
+6. Other member functions
+7. Member variables
+
+Related elements should be grouped together.
+
 ## Comments
 
 Use multi-line comment syntax (`/**/`) to document interfaces, and single-line comment syntax (`//`) to document implementations.
