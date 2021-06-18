@@ -94,10 +94,6 @@ Macros should be all uppercase, with words separated by underscors (`_`).
 #define UGLY_MACRO(...)
 ```
 
-## Comments
-
-Use multi-line comment syntax (`/**/`) to document interfaces, and single-line comment syntax (`//`) to document implementations.
-
 ## Headers
 
 Every header should contain a `#pragma once` directive. Include what you use, and do not rely on transitive inclusions. Forward declare everything you can, as this can significantly improve compile times.
@@ -111,3 +107,7 @@ Include headers in the following order:
 3. C++ standard library headers (e.g. `<iostream>`)
 4. Other library headers
 5. Project headers
+
+## Comments
+
+Use multi-line comment syntax (`/**/`) to document interfaces, and single-line comment syntax (`//`) to document implementations.
