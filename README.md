@@ -104,6 +104,7 @@ Include headers in the following order:
 3. C++ standard library headers (e.g. `<iostream>`)
 4. Other library headers
 5. Project headers
+6. Conditional headers
 
 ## Comments
 
