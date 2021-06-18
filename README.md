@@ -205,7 +205,7 @@ A type should not be copyable/movable if the meaning of copying/moving is unclea
 
 ### Declaration Order
 
-Every class should have only three sections, one for each access level - i.e. `public`, `protected`, `protected`, in that order. Empty sections should be omitted. Within each section, elements of a class should be declared in the following order:
+Every class should have only three sections, one for each access level - i.e. `public`, `protected`, `private`, in that order. Empty sections should be omitted. Within each section, elements of a class should be declared in the following order:
 
 1. Nested types
 2. Type aliases
