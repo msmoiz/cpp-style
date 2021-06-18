@@ -179,6 +179,30 @@ auto bar = [&]() { ... }; // bad
 auto baz = [this, &a, b]() { ... }; // good
 ```
 
+## Classes
+
+Classes are the fundamental unit of code in C++. Naturally, we use them extensively.
+
+### When to Use a Struct or a Class
+
+Use a `struct` only for passive objects that carry data. Everything else is a `class`. Structs should be used for passive objects that carry data, and may have associated constants. All fields must be public. The struct must not have invariants that imply relationships between different fields, since direct user access to those fields may break those invariants. Constructors, destructors, and helper methods may be present; however, these methods must not require or enforce any invariants.
+
+If more functionality or invariants are required, a class is more appropriate. If in doubt, make it a class.
+
+### Doing Work in Constructors
+
+Work in a constructor should be easy to follow. Do not call virtual methods. Do not conduct initialization that can fail, if you cannot signal an error. That said, it is generally obtuse to use `init` functions as an alternative to initialize partially constructed objects.
+
+### Explicit Conversions
+
+Do not define implicit conversions. Single-argument constructors and conversion operators should be marked `explicit`.
+
+### Copy and Move
+
+A class's public API must make clear whether the class is copyable, move-only, or neither copyable nor movable. Support copying and/or moving if these operations are clear and meaningful for your type. This should usually take the form of explicitly declaring and/or deleting the appropriate operations in the public section of the declaration. Specifically, a copyable class should explicitly declare the copy operations, a move-only class should explicitly declare the move operations, and a non-copyable/movable class should explicitly delete the copy operations. A copyable class may also declare move operations in order to support efficient moves. Explicitly declaring or deleting all four copy/move operations is permitted, but not required. If you provide a copy or move assignment operator, you must also provide the corresponding constructor.
+
+A type should not be copyable/movable if the meaning of copying/moving is unclear to a casual user, or if it incurs unexpected costs. Move operations for copyable types are strictly a performance optimization and are a potential source of bugs and complexity, so avoid defining them unless they are significantly more efficient than the corresponding copy operations. If your type provides copy operations, it is recommended that you design your class so that the default implementation of those operations is correct. Remember to review the correctness of any defaulted operations as you would any other code.
+
 ## Comments
 
 Use multi-line comment syntax (`/**/`) to document interfaces, and single-line comment syntax (`//`) to document implementations.
